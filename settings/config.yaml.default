@@ -1,0 +1,22 @@
+DATABASE:
+    DRIVER:
+    HOST:
+    PORT:
+    DATABASE:
+    USERNAME:
+    PASSWORD:
+
+
+CACHE:
+    HOST:
+    PORT:
+    ENCODING:
+    DB:
+    PASSWORD:
+    SSL:
+    TIMEOUT:
+
+
+SECRET_KEY:
+
+TEMPLATES: "templates"

@@ -4,7 +4,7 @@ import yaml
 import jinja2
 
 import aiohttp_jinja2
-from aiohttp_debugtoolbar import toolbar_middleware_factory
+import aiohttp_debugtoolbar
 from aiohttp.web import Application
 
 from . import db, routes
@@ -16,14 +16,14 @@ def add_config(app):
 
 
 def setup(app):
-    # aiohttp_debugtoolbar.setup(app)
+    aiohttp_debugtoolbar.setup(app)
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(
         '/'.join([os.path.dirname(os.path.dirname(__file__)), app['config']['TEMPLATES']])
     ))
 
 
 def create_app(loop):
-    app = Application(loop=loop, middlewares=[toolbar_middleware_factory])
+    app = Application(loop=loop, middlewares=[])
     add_config(app)
     setup(app)
     routes.setup_routes(app)

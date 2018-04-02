@@ -5,4 +5,4 @@ RUN apt-get update && apt-get install -y wget gcc make zlib1g-dev libssl-dev && 
 ADD requirements.txt /home/projects/ycie-aiohttp/requirements.txt
 RUN pip3.6 install -r /home/projects/ycie-aiohttp/requirements.txt
 
-EXPOSE 8080
+EXPOSE 8000

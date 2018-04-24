@@ -2,7 +2,7 @@ import uvloop
 import asyncio
 from aiohttp import web
 
-from settings import create_app
+from application.settings import create_app
 
 
 if __name__ == '__main__':

@@ -1,11 +1,11 @@
 from __future__ import with_statement
-
-import os
-import yaml
-
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
+
+from application.settings import add_config
+from application.settings import db
+from application.user import tables
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,7 +19,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = tables.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -39,13 +39,11 @@ def run_migrations_offline():
     script output.
 
     """
-
-    with open('/'.join([os.path.dirname(os.path.dirname(__file__)), 'application/settings/config.yaml']), 'r') as f:
-        config = yaml.load(f)
-    db = config['DATABASE']
+    config = {}
+    add_config(config)
+    db = config['config']['DATABASE']
     url = f'postgresql+psycopg2://{db["DATABASE"]}:{db["PASSWORD"]}@{db["HOST"]}:{db["PORT"]}/{db["DATABASE"]}'
-    context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True)
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -58,19 +56,13 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
+    app = {}
+    db.init_pg(app)
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
+    context.configure(connection=app['db'], target_metadata=target_metadata)
 
-        with context.begin_transaction():
-            context.run_migrations()
+    with context.begin_transaction():
+        context.run_migrations()
 
 if context.is_offline_mode():
     run_migrations_offline()

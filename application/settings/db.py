@@ -11,9 +11,9 @@ async def init_pg(app):
         port=conf['PORT'],
         pool_recycle=4 * 60 * 60,
     )
-    app['db'] = engine
+    return engine
 
 
 async def close_pg(app):
-    app['db'].close()
-    await app['db'].wait_closed()
+    app.db.close()
+    await app.db.wait_closed()

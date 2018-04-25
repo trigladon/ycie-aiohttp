@@ -1,7 +1,7 @@
 from aioredis import create_pool
 
 
-async def init_redis_pool(app):
+async def redis_pool(app):
     conf = app['config']['CACHE']
     return await create_pool(
         (conf['HOST'], conf['PORT']),

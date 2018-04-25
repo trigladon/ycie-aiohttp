@@ -1,11 +1,14 @@
 from __future__ import with_statement
 from alembic import context
-from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
+from sqlalchemy import engine_from_config, pool
+
+import sys
+
+sys.path.append('')
 
 from application.settings import add_config
-from application.settings import db
-from application.user import tables
+from application import tables
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,24 +28,28 @@ target_metadata = tables.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+app = {}
+add_config(app)
+db_conf = app['config']['DATABASE']
+config.set_main_option('sqlalchemy.url', "postgresql://{}:{}@{}:{}/{}".format(
+    db_conf['USERNAME'],
+    db_conf['PASSWORD'],
+    db_conf['HOST'],
+    db_conf['PORT'],
+    db_conf['DATABASE'])
+)
 
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
-
     This configures the context with just a URL
     and not an Engine, though an Engine is acceptable
     here as well.  By skipping the Engine creation
     we don't even need a DBAPI to be available.
-
     Calls to context.execute() here emit the given string to the
     script output.
-
     """
-    config = {}
-    add_config(config)
-    db = config['config']['DATABASE']
-    url = f'postgresql+psycopg2://{db["DATABASE"]}:{db["PASSWORD"]}@{db["HOST"]}:{db["PORT"]}/{db["DATABASE"]}'
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
@@ -51,18 +58,22 @@ def run_migrations_offline():
 
 def run_migrations_online():
     """Run migrations in 'online' mode.
-
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
-    app = {}
-    db.init_pg(app)
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section), prefix='sqlalchemy.', poolclass=pool.NullPool
+    )
 
-    context.configure(connection=app['db'], target_metadata=target_metadata)
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata
+        )
 
-    with context.begin_transaction():
-        context.run_migrations()
+        with context.begin_transaction():
+            context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

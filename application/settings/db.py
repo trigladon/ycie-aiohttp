@@ -1,5 +1,4 @@
 from aiopg.sa import create_engine
-from sqlalchemy.pool import QueuePool
 
 
 async def init_pg(app):
@@ -10,8 +9,6 @@ async def init_pg(app):
         password=conf['PASSWORD'],
         host=conf['HOST'],
         port=conf['PORT'],
-        pool_size=5,
-        poolclass=QueuePool,
         pool_recycle=4 * 60 * 60,
     )
     app['db'] = engine

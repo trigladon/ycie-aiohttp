@@ -1,6 +1,6 @@
 import os
 
-from application import views as application_views
+from application.views import application as application_views
 
 
 def setup_routes(app):
